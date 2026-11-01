@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSK 1 汉字词汇翻转卡片 - 普吉高中汉语复习</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Sarabun & Noto Serif SC -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+SC:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Typography System */
+        .font-zh {
+            font-family: 'SimSun', 'SongTi', 'Noto Serif SC', STSong, serif;
+        }
+
+        .font-py {
+            font-family: 'STKaiti', 'STFangsong', 'Kaiti SC', KaiTi, cursive, sans-serif;
+        }
+
+        .font-th {
+            font-family: 'Sarabun', 'Leelawadee', sans-serif;
+        }
+
+        /* 3D Flip Card Effect */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* Standardized Ruby Alignment */
+        ruby {
+            ruby-position: over;
+            display: inline-flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            vertical-align: bottom;
+        }
+        
+        rt {
+            font-family: 'STKaiti', 'STFangsong', 'Kaiti SC', KaiTi, sans-serif;
+            font-size: 0.65em;
+            line-height: 1.2;
+            color: #0284c7;
+            font-weight: 600;
+            text-align: center;
+            user-select: none;
+        }
+
+        /* Scrollbar aesthetics */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-amber-50/40 text-slate-800 font-th min-h-screen flex flex-col selection:bg-amber-200 selection:text-amber-900">
+
+    <!-- HEADER / NAVIGATION BAR -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-amber-200/60 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Title & Badge -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold font-zh text-2xl shadow-md shadow-amber-500/20">
+                        学
+                    </div>
+                    <div>
+                        <h1 class="text-base sm:text-lg font-bold font-zh text-slate-900 flex items-center gap-2">
+                            HSK 1 汉字词汇复习卡片
+                            <span class="text-xs bg-amber-100 text-amber-800 font-th px-2.5 py-0.5 rounded-full font-semibold border border-amber-300/60">M4 - M6 泰国高中</span>
+                        </h1>
+                        <p class="text-xs text-slate-500 font-th">บัตรคำศัพท์ HSK 1 สำหรับนักเรียนมัธยมศึกษาภูเก็ต</p>
+                    </div>
+                </div>
+
+                <!-- Action Controls (Mastered Stats & View Switcher) -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <button onclick="toggleMasteredListModal()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                        <span>已掌握: <strong id="header-mastered-count" class="font-mono text-sm">0</strong></span>
+                    </button>
+
+                    <div class="bg-slate-100 p-1 rounded-xl flex items-center text-xs border border-slate-200">
+                        <button onclick="setViewMode('single')" id="btn-view-single" class="px-2.5 py-1 rounded-lg bg-white text-amber-900 font-semibold shadow-sm transition flex items-center gap-1">
+                            <i class="fa-solid fa-clone"></i> <span class="hidden sm:inline">单张模式</span>
+                        </button>
+                        <button onclick="setViewMode('grid')" id="btn-view-grid" class="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1">
+                            <i class="fa-solid fa-border-all"></i> <span class="hidden sm:inline">网格全览</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter & Shuffle Bar -->
+        <div class="bg-amber-100/50 border-t border-amber-200/40 px-4 py-2">
+            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs">
+                <!-- Category Filter Buttons -->
+                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none" id="category-filters">
+                    <button onclick="filterCategory('all')" class="cat-btn px-3 py-1 rounded-lg font-medium bg-amber-600 text-white shadow-sm" data-cat="all">全部 (All: 150)</button>
+                    <button onclick="filterCategory('名')" class="cat-btn px-3 py-1 rounded-lg font-medium bg-white text-slate-700 hover:bg-amber-200/60 border border-slate-200" data-cat="名">名词 (Nouns)</button>
+                    <button onclick="filterCategory('动')" class="cat-btn px-3 py-1 rounded-lg font-medium bg-white text-slate-700 hover:bg-amber-200/60 border border-slate-200" data-cat="动">动词 (Verbs)</button>
+                    <button onclick="filterCategory('形')" class="cat-btn px-3 py-1 rounded-lg font-medium bg-white text-slate-700 hover:bg-amber-200/60 border border-slate-200" data-cat="形">形容词 (Adj)</button>
+                    <button onclick="filterCategory('数')" class="cat-btn px-3 py-1 rounded-lg font-medium bg-white text-slate-700 hover:bg-amber-200/60 border border-slate-200" data-cat="数">数词/量词 (Nums/Meas)</button>
+                    <button onclick="filterCategory('代')" class="cat-btn px-3 py-1 rounded-lg font-medium bg-white text-slate-700 hover:bg-amber-200/60 border border-slate-200" data-cat="代">代词/副词/其他</button>
+                </div>
+
+                <!-- Search & Randomize Tools -->
+                <div class="flex items-center gap-2">
+                    <button onclick="shuffleDeck()" class="px-3 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold transition flex items-center gap-1 shadow-sm">
+                        <i class="fa-solid fa-shuffle"></i> 随机乱序
+                    </button>
+                    <button onclick="resetAllMastered()" class="px-2.5 py-1 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold transition flex items-center gap-1" title="重置已掌握列表">
+                        <i class="fa-solid fa-rotate-left"></i> 重置
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN STUDY AREA -->
+    <main class="flex-grow max-w-5xl w-full mx-auto px-4 py-6 flex flex-col justify-center">
+
+        <!-- PROGRESS & INDICATOR BAR -->
+        <div class="mb-4 space-y-1.5">
+            <div class="flex justify-between items-center text-xs text-slate-600 font-medium">
+                <span id="deck-status-text">正在复习: 150 词汇</span>
+                <span id="progress-percentage-text" class="font-mono text-amber-700 font-bold">0% 已掌握</span>
+            </div>
+            <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden shadow-inner">
+                <div id="progress-bar" class="h-full bg-gradient-to-r from-amber-400 to-emerald-500 transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- MODE 1: SINGLE CARD STUDY VIEW -->
+        <div id="view-single-container" class="flex flex-col items-center justify-center space-y-6">
+            
+            <!-- THE FLIP CARD CONTAINER -->
+            <div class="w-full max-w-md h-80 sm:h-96 perspective-1000 group cursor-pointer" onclick="flipCurrentCard()">
+                <div id="active-card-inner" class="relative w-full h-full transform-style-3d transition-transform duration-500 ease-out shadow-xl rounded-3xl bg-white border border-amber-200/80">
+                    
+                    <!-- CARD FRONT (Chinese Only) -->
+                    <div class="absolute inset-0 w-full h-full backface-hidden rounded-3xl p-6 flex flex-col justify-between items-center bg-gradient-to-b from-white via-amber-50/30 to-amber-100/40">
+                        <div class="w-full flex justify-between items-center text-slate-400 text-xs">
+                            <span class="bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full font-mono" id="card-front-pos">名</span>
+                            <span class="text-slate-400 italic flex items-center gap-1">
+                                <i class="fa-solid fa-hand-pointer text-amber-500 animate-bounce"></i> 点击翻面 (Tap to Flip)
+                            </span>
+                        </div>
+
+                        <!-- Main Chinese Character Display -->
+                        <div class="my-auto text-center space-y-2">
+                            <h2 id="card-front-chinese" class="text-6xl sm:text-7xl font-bold font-zh text-slate-900 tracking-wider">
+                                爱
+                            </h2>
+                        </div>
+
+                        <!-- Quick Audio Button on Front -->
+                        <div class="w-full flex justify-between items-center">
+                            <button onclick="event.stopPropagation(); speakActiveWord()" class="w-10 h-10 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-800 flex items-center justify-center transition" title="听发音">
+                                <i class="fa-solid fa-volume-high text-base"></i>
+                            </button>
+                            <span id="card-counter-indicator" class="font-mono text-xs text-slate-400">1 / 150</span>
+                        </div>
+                    </div>
+
+                    <!-- CARD BACK (Pinyin + Thai + Details) -->
+                    <div class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 rounded-3xl p-6 flex flex-col justify-between items-center bg-white border-2 border-amber-400">
+                        <div class="w-full flex justify-between items-center text-xs">
+                            <span class="bg-amber-500 text-white font-bold px-2.5 py-0.5 rounded-full font-mono" id="card-back-pos">名</span>
+                            <span class="text-xs text-amber-700 font-bold">背面释义 (Meaning)</span>
+                        </div>
+
+                        <!-- Center Word Info -->
+                        <div class="my-auto text-center space-y-3 w-full">
+                            <!-- Character with Top Pinyin -->
+                            <div class="inline-block">
+                                <ruby class="text-4xl sm:text-5xl font-bold font-zh text-slate-900">
+                                    <rb id="card-back-chinese">爱</rb>
+                                    <rt id="card-back-pinyin" class="text-lg sm:text-xl font-py text-sky-600 font-bold mb-1">ài</rt>
+                                </ruby>
+                            </div>
+
+                            <!-- Thai Translation -->
+                            <div class="bg-amber-50 rounded-2xl p-3 border border-amber-200/70">
+                                <p class="text-xs text-slate-400 font-semibold mb-0.5">ความหมายภาษาไทย (Thai)</p>
+                                <p id="card-back-thai" class="text-xl font-bold text-amber-900 font-th">รัก, ชอบ</p>
+                            </div>
+
+                            <!-- English Meaning -->
+                            <p id="card-back-english" class="text-xs text-slate-500 font-mono italic">to love; to like</p>
+                        </div>
+
+                        <!-- Audio Button on Back -->
+                        <div class="w-full flex justify-center">
+                            <button onclick="event.stopPropagation(); speakActiveWord()" class="px-4 py-1.5 rounded-full bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-semibold transition flex items-center gap-2 border border-sky-200">
+                                <i class="fa-solid fa-volume-high"></i> 听标准发音 (Listen)
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- CONTROLS & MASTERED BUTTON -->
+            <div class="w-full max-w-md flex items-center justify-between gap-3">
+                <button onclick="prevCard()" class="flex-1 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-sm rounded-2xl shadow-sm transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-left"></i> 上一个
+                </button>
+
+                <button onclick="markCurrentMastered()" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-2xl shadow-md transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check"></i> 已掌握 (M)
+                </button>
+
+                <button onclick="nextCard()" class="flex-1 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-sm rounded-2xl shadow-sm transition flex items-center justify-center gap-2">
+                    下一个 <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- KEYBOARD SHORTCUTS HINT -->
+            <p class="text-[11px] text-slate-400 text-center">
+                💡 <span class="font-semibold text-slate-500">快捷键 (Shortcuts):</span> 空格键 (Space): 翻面 | 左右方向键 (←/→): 切换 | 字母 M: 标记已掌握
+            </p>
+        </div>
+
+        <!-- MODE 2: GRID OVERVIEW VIEW (HIDDEN BY DEFAULT) -->
+        <div id="view-grid-container" class="hidden space-y-4">
+            <div class="flex justify-between items-center text-xs text-slate-500">
+                <span>点击任意词汇卡片可直接切换至单卡学习</span>
+                <span id="grid-count-indicator">显示 150 个词汇</span>
+            </div>
+            <div id="grid-cards-wrapper" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                <!-- Javascript dynamic loading -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MASTERED LIST MODAL -->
+    <div id="mastered-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 space-y-4 shadow-2xl border border-slate-200 max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-trophy text-sm"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 font-zh text-base">已掌握词汇库 (Mastered Words)</h3>
+                        <p class="text-xs text-slate-500">รายการคำศัพท์ที่จำได้แล้ว</p>
+                    </div>
+                </div>
+                <button onclick="toggleMasteredListModal()" class="text-slate-400 hover:text-slate-600 p-2">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Mastered Cards List -->
+            <div id="mastered-items-list" class="flex-grow overflow-y-auto space-y-2 pr-1 text-xs">
+                <!-- Javascript will populate mastered items -->
+            </div>
+
+            <!-- Modal Footer Controls -->
+            <div class="pt-3 border-t border-slate-100 flex justify-between items-center">
+                <button onclick="resetAllMastered()" class="text-xs text-rose-600 hover:text-rose-800 font-semibold flex items-center gap-1">
+                    <i class="fa-solid fa-trash-can"></i> 全部重置为未掌握
+                </button>
+                <button onclick="toggleMasteredListModal()" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800">
+                    关 闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUDIO SYNTHESIS & SCRIPT LOGIC -->
+    <script>
+        // FULL HSK 1 VOCABULARY DATASET (150 Words with precise Chinese, Pinyin, Part of Speech, English, and Thai)
+        const rawHsk1Data = [
+            { ch: "爱", py: "ài", pos: "动", en: "to love; to like", th: "รัก, ชอบ" },
+            { ch: "八", py: "bā", pos: "数", en: "eight", th: "แปด (8)" },
+            { ch: "爸爸", py: "bà ba", pos: "名", en: "father; dad", th: "พ่อ" },
+            { ch: "杯子", py: "bēi zi", pos: "名", en: "cup; glass", th: "แก้ว, ถ้วย" },
+            { ch: "北京", py: "běi jīng", pos: "名", en: "Beijing", th: "ปักกิ่ง" },
+            { ch: "本", py: "běn", pos: "量", en: "measure word for books", th: "เล่ม (ลักษณะนามของหนังสือ)" },
+            { ch: "不客气", py: "bú kè qi", pos: "套", en: "you're welcome", th: "ไม่เป็นไร (ตอบรับขอบคุณ)" },
+            { ch: "不", py: "bù", pos: "副", en: "not; no", th: "ไม่" },
+            { ch: "菜", py: "cài", pos: "名", en: "dish; vegetable", th: "อาหาร, ผัก" },
+            { ch: "茶", py: "chá", pos: "名", en: "tea", th: "ชา" },
+            { ch: "吃", py: "chī", pos: "动", en: "to eat", th: "กิน, รับประทาน" },
+            { ch: "出租车", py: "chū zū chē", pos: "名", en: "taxi", th: "รถแท็กซี่" },
+            { ch: "打电话", py: "dǎ diàn huà", pos: "动", en: "make a phone call", th: "โทรศัพท์" },
+            { ch: "大", py: "dà", pos: "形", en: "big; large", th: "ใหญ่" },
+            { ch: "的", py: "de", pos: "助", en: "of (possessive particle)", th: "ของ, ที่" },
+            { ch: "点", py: "diǎn", pos: "量", en: "o'clock; spot", th: "โมง, นาฬิกา" },
+            { ch: "电脑", py: "diàn nǎo", pos: "名", en: "computer", th: "คอมพิวเตอร์" },
+            { ch: "电视", py: "diàn shì", pos: "名", en: "television; TV", th: "โทรทัศน์, ทีวี" },
+            { ch: "电影", py: "diàn yǐng", pos: "名", en: "movie; film", th: "ภาพยนตร์, หนัง" },
+            { ch: "东西", py: "dōng xi", pos: "名", en: "thing; stuff", th: "สิ่งของ" },
+            { ch: "都", py: "dōu", pos: "副", en: "all; both", th: "ล้วน, ทั้งหมด" },
+            { ch: "读", py: "dú", pos: "动", en: "to read aloud", th: "อ่าน" },
+            { ch: "对不起", py: "duì bu qǐ", pos: "套", en: "sorry; excuse me", th: "ขอโทษ" },
+            { ch: "多", py: "duō", pos: "形", en: "many; much", th: "มาก, เยอะ" },
+            { ch: "多少", py: "duō shǎo", pos: "代", en: "how many/much?", th: "เท่าไหร่" },
+            { ch: "儿子", py: "ér zi", pos: "名", en: "son", th: "ลูกชาย" },
+            { ch: "二", py: "èr", pos: "数", en: "two", th: "สอง (2)" },
+            { ch: "饭店", py: "fàn diàn", pos: "名", en: "restaurant; hotel", th: "ร้านอาหาร, โรงแรม" },
+            { ch: "飞机", py: "fēi jī", pos: "名", en: "airplane", th: "เครื่องบิน" },
+            { ch: "分钟", py: "fēn zhōng", pos: "量", en: "minute", th: "นาที" },
+            { ch: "高兴", py: "gāo xìng", pos: "形", en: "happy; glad", th: "ดีใจ, มีความสุข" },
+            { ch: "个", py: "gè", pos: "量", en: "general measure word", th: "คน, ชิ้น, อัน (ลักษณะนามทั่วไป)" },
+            { ch: "工作", py: "gōng zuò", pos: "名/动", en: "work; job", th: "ทำงาน, งาน" },
+            { ch: "狗", py: "gǒu", pos: "名", en: "dog", th: "สุนัข, หมา" },
+            { ch: "汉语", py: "hàn yǔ", pos: "名", en: "Chinese language", th: "ภาษาจีน" },
+            { ch: "好", py: "hǎo", pos: "形", en: "good; well", th: "ดี" },
+            { ch: "号", py: "hào", pos: "量", en: "date; number", th: "วันที่, หมายเลข" },
+            { ch: "喝", py: "hē", pos: "动", en: "to drink", th: "ดื่ม" },
+            { ch: "和", py: "hé", pos: "连", en: "and; with", th: "และ, กับ" },
+            { ch: "很", py: "hěn", pos: "副", en: "very", th: "มาก" },
+            { ch: "后面", py: "hòu miàn", pos: "名", en: "behind; back", th: "ข้างหลัง" },
+            { ch: "回", py: "huí", pos: "动", en: "to return; go back", th: "กลับ" },
+            { ch: "会", py: "huì", pos: "动", en: "can; know how to", th: "เป็น, สามารถ...ได้" },
+            { ch: "几", py: "jǐ", pos: "代", en: "how many?", th: "กี่ (ใช้ถามจำนวนน้อย)" },
+            { ch: "家", py: "jiā", pos: "名", en: "home; family", th: "บ้าน, ครอบครัว" },
+            { ch: "叫", py: "jiào", pos: "动", en: "to be called; name", th: "ชื่อว่า, เรียก" },
+            { ch: "今天", py: "jīn tiān", pos: "名", en: "today", th: "วันนี้" },
+            { ch: "九", py: "jiǔ", pos: "数", en: "nine", th: "เก้า (9)" },
+            { ch: "开", py: "kāi", pos: "动", en: "to open; to drive", th: "เปิด, ขับ (รถ)" },
+            { ch: "看", py: "kàn", pos: "动", en: "to look; watch; read", th: "ดู, มอง, อ่าน" },
+            { ch: "看见", py: "kàn jiàn", pos: "动", en: "to see", th: "มองเห็น" },
+            { ch: "块", py: "kuài", pos: "量", en: "piece; yuan (money)", th: "ชิ้น, หยวน (หน่วยเงิน)" },
+            { ch: "来", py: "lái", pos: "动", en: "to come", th: "มา" },
+            { ch: "老师", py: "lǎo shī", pos: "名", en: "teacher", th: "ครู, อาจารย์" },
+            { ch: "了", py: "le", pos: "助", en: "completed action particle", th: "แล้ว (แสดงการเปลี่ยนแปลง)" },
+            { ch: "冷", py: "lěng", pos: "形", en: "cold", th: "หนาว, เย็น" },
+            { ch: "里", py: "lǐ", pos: "名", en: "inside; in", th: "ข้างใน, ใน" },
+            { ch: "六", py: "liù", pos: "数", en: "six", th: "หก (6)" },
+            { ch: "妈妈", py: "mā ma", pos: "名", en: "mother; mom", th: "แม่" },
+            { ch: "吗", py: "ma", pos: "助", en: "question particle", th: "ไหม, หรือเปล่า" },
+            { ch: "买", py: "mǎi", pos: "动", en: "to buy", th: "ซื้อ" },
+            { ch: "猫", py: "māo", pos: "名", en: "cat", th: "แมว" },
+            { ch: "没关系", py: "méi guān xi", pos: "套", en: "it doesn't matter", th: "ไม่เป็นไร" },
+            { ch: "没有", py: "méi yǒu", pos: "动/副", en: "don't have; not exist", th: "ไม่มี" },
+            { ch: "米饭", py: "mǐ fàn", pos: "名", en: "cooked rice", th: "ข้าวสวย" },
+            { ch: "明天", py: "míng tiān", pos: "名", en: "tomorrow", th: "พรุ่งนี้" },
+            { ch: "名字", py: "míng zi", pos: "名", en: "name", th: "ชื่อ" },
+            { ch: "哪", py: "nǎ", pos: "代", en: "which?", th: "ไหน" },
+            { ch: "哪儿", py: "nǎ er", pos: "代", en: "where?", th: "ที่ไหน" },
+            { ch: "那", py: "nà", pos: "代", en: "that", th: "นั้น, นั่น" },
+            { ch: "呢", py: "ne", pos: "助", en: "modal particle (and you?)", th: "ล่ะ (ใช้ถามกลับ)" },
+            { ch: "能", py: "néng", pos: "动", en: "can; be able to", th: "สามารถ...ได้" },
+            { ch: "你", py: "nǐ", pos: "代", en: "you", th: "คุณ, เธอ" },
+            { ch: "年", py: "nián", pos: "名/量", en: "year", th: "ปี" },
+            { ch: "女儿", py: "nǚ ér", pos: "名", en: "daughter", th: "ลูกสาว" },
+            { ch: "朋友", py: "péng you", pos: "名", en: "friend", th: "เพื่อน" },
+            { ch: "漂亮", py: "piào liang", pos: "形", en: "pretty; beautiful", th: "สวย" },
+            { ch: "苹果", py: "píng guǒ", pos: "名", en: "apple", th: "แอปเปิ้ล" },
+            { ch: "七", py: "qī", pos: "数", en: "seven", th: "เจ็ด (7)" },
+            { ch: "钱", py: "qián", pos: "名", en: "money", th: "เงิน" },
+            { ch: "前面", py: "qián miàn", pos: "名", en: "front; ahead", th: "ข้างหน้า" },
+            { ch: "请", py: "qǐng", pos: "动", en: "please; invite", th: "เชิญ, กรุณา" },
+            { ch: "去", py: "qù", pos: "动", en: "to go", th: "ไป" },
+            { ch: "热", py: "rè", pos: "形", en: "hot", th: "ร้อน" },
+            { ch: "人", py: "rén", pos: "名", en: "person; people", th: "คน" },
+            { ch: "认识", py: "rèn shi", pos: "动", en: "to know; recognize", th: "รู้จัก" },
+            { ch: "三", py: "sān", pos: "数", en: "three", th: "สาม (3)" },
+            { ch: "商店", py: "shāng diàn", pos: "名", en: "shop; store", th: "ร้านค้า" },
+            { ch: "上", py: "shàng", pos: "名", en: "on; above; up", th: "บน, ข้างบน" },
+            { ch: "上午", py: "shàng wǔ", pos: "名", en: "morning", th: "ตอนเช้า" },
+            { ch: "少", py: "shǎo", pos: "形", en: "few; little", th: "น้อย" },
+            { ch: "谁", py: "shéi", pos: "代", en: "who?", th: "ใคร" },
+            { ch: "什么", py: "shén me", pos: "代", en: "what?", th: "อะไร" },
+            { ch: "十", py: "shí", pos: "数", en: "ten", th: "สิบ (10)" },
+            { ch: "时候", py: "shí hou", pos: "名", en: "time; moment", th: "เวลา, ตอน" },
+            { ch: "是", py: "shì", pos: "动", en: "to be (am, is, are)", th: "คือ, เป็น, ใช่" },
+            { ch: "书", py: "shū", pos: "名", en: "book", th: "หนังสือ" },
+            { ch: "水", py: "shuǐ", pos: "名", en: "water", th: "น้ำ" },
+            { ch: "水果", py: "shuǐ guǒ", pos: "名", en: "fruit", th: "ผลไม้" },
+            { ch: "睡觉", py: "shuì jiào", pos: "动", en: "to sleep", th: "นอนหลับ" },
+            { ch: "说", py: "shuō", pos: "动", en: "to speak; talk", th: "พูด" },
+            { ch: "四", py: "sì", pos: "数", en: "four", th: "สี่ (4)" },
+            { ch: "岁", py: "suì", pos: "量", en: "years old (age)", th: "ขวบ, ปี (อายุ)" },
+            { ch: "他", py: "tā", pos: "代", en: "he; him", th: "เขา (ผู้ชาย)" },
+            { ch: "她", py: "tā", pos: "代", en: "she; her", th: "เขา (ผู้หญิง)" },
+            { ch: "太", py: "tài", pos: "副", en: "too; extremely", th: "เกินไป, มาก" },
+            { ch: "天气", py: "tiān qì", pos: "名", en: "weather", th: "อากาศ" },
+            { ch: "听", py: "tīng", pos: "动", en: "to listen; hear", th: "ฟัง" },
+            { ch: "同学", py: "tóng xué", pos: "名", en: "classmate", th: "เพื่อนนักเรียน" },
+            { ch: "喂", py: "wèi", pos: "叹", en: "hello (on phone)", th: "ฮัลโหล, ฮาโหล" },
+            { ch: "我", py: "wǒ", pos: "代", en: "I; me", th: "ฉัน, ผม" },
+            { ch: "我们", py: "wǒ men", pos: "代", en: "we; us", th: "พวกเรา" },
+            { ch: "五", py: "wǔ", pos: "数", en: "five", th: "ห้า (5)" },
+            { ch: "喜欢", py: "xǐ huan", pos: "动", en: "to like; enjoy", th: "ชอบ" },
+            { ch: "下", py: "xià", pos: "名", en: "under; below; down", th: "ล่าง, ข้างล่าง" },
+            { ch: "下午", py: "xià wǔ", pos: "名", en: "afternoon", th: "ตอนบ่าย" },
+            { ch: "下雨", py: "xià yǔ", pos: "动", en: "to rain", th: "ฝนตก" },
+            { ch: "先生", py: "xiān sheng", pos: "名", en: "Mr.; gentleman", th: "คุณผู้ชาย, นาย" },
+            { ch: "现在", py: "xiàn zài", pos: "名", en: "now", th: "ตอนนี้, ขณะนี้" },
+            { ch: "想", py: "xiǎng", pos: "动", en: "would like; think", th: "อยาก, คิด" },
+            { ch: "小", py: "xiǎo", pos: "形", en: "small; little", th: "เล็ก" },
+            { ch: "小姐", py: "xiǎo jiě", pos: "名", en: "Miss; young lady", th: "คุณผู้หญิง, คุณหนู" },
+            { ch: "些", py: "xiē", pos: "量", en: "some; a few", th: "บ้าง, เล็กน้อย" },
+            { ch: "写", py: "xiě", pos: "动", en: "to write", th: "เขียน" },
+            { ch: "谢谢", py: "xiè xie", pos: "动", en: "thank you", th: "ขอบคุณ" },
+            { ch: "星期", py: "xīng qī", pos: "名", en: "week", th: "สัปดาห์, อาทิตย์" },
+            { ch: "学生", py: "xué sheng", pos: "名", en: "student", th: "นักเรียน" },
+            { ch: "学习", py: "xué xí", pos: "动", en: "to study; learn", th: "เรียน, ศึกษา" },
+            { ch: "学校", py: "xué xiào", pos: "名", en: "school", th: "โรงเรียน" },
+            { ch: "一", py: "yī", pos: "数", en: "one", th: "หนึ่ง (1)" },
+            { ch: "一点儿", py: "yī diǎn er", pos: "数", en: "a little bit", th: "นิดหน่อย" },
+            { ch: "衣服", py: "yī fu", pos: "名", en: "clothes", th: "เสื้อผ้า" },
+            { ch: "医生", py: "yī shēng", pos: "名", en: "doctor", th: "หมอ, แพทย์" },
+            { ch: "医院", py: "yī yuàn", pos: "名", en: "hospital", th: "โรงพยาบาล" },
+            { ch: "椅子", py: "yǐ zi", pos: "名", en: "chair", th: "เก้าอี้" },
+            { ch: "有", py: "yǒu", pos: "动", en: "to have; possess", th: "มี" },
+            { ch: "月", py: "yuè", pos: "名", en: "month; moon", th: "เดือน, พระจันทร์" },
+            { ch: "在", py: "zài", pos: "动/介", en: "at; in; located", th: "อยู่, ที่" },
+            { ch: "再见", py: "zài jiàn", pos: "动", en: "goodbye", th: "ลาก่อน, แล้วพบกันใหม่" },
+            { ch: "怎么", py: "zěn me", pos: "代", en: "how?", th: "อย่างไร, ยังไง" },
+            { ch: "怎么样", py: "zěn me yàng", pos: "代", en: "how about it?", th: "เป็นอย่างไรบ้าง" },
+            { ch: "这", py: "zhè", pos: "代", en: "this", th: "นี้, นี่" },
+            { ch: "中国", py: "zhōng guó", pos: "名", en: "China", th: "ประเทศจีน" },
+            { ch: "中午", py: "zhōng wǔ", pos: "名", en: "midday; noon", th: "เที่ยง, ตอนเที่ยง" },
+            { ch: "住", py: "zhù", pos: "动", en: "to live; stay", th: "อาศัยอยู่, พัก" },
+            { ch: "桌子", py: "zhuō zi", pos: "名", en: "table; desk", th: "โต๊ะ" },
+            { ch: "字", py: "zì", pos: "名", en: "character; word", th: "ตัวอักษร, คำ" },
+            { ch: "昨天", py: "zuó tiān", pos: "名", en: "yesterday", th: "เมื่อวาน" },
+            { ch: "坐", py: "zuò", pos: "动", en: "to sit; take vehicle", th: "นั่ง" },
+            { ch: "做", py: "zuò", pos: "动", en: "to do; make", th: "ทำ" }
+        ];
+
+        // STATE MANAGERS
+        let activeDeck = [];
+        let masteredSet = new Set(JSON.parse(localStorage.getItem('hsk1_mastered_words') || '[]'));
+        let currentIndex = 0;
+        let currentFilter = 'all';
+        let isCardFlipped = false;
+        let viewMode = 'single';
+
+        // INITIALIZATION
+        window.onload = function() {
+            filterDeck();
+            setupKeyboardListeners();
+        };
+
+        // FILTER & DECK BUILDER
+        function filterDeck() {
+            activeDeck = rawHsk1Data.filter(item => {
+                const isMastered = masteredSet.has(item.ch);
+                if (isMastered) return false;
+
+                if (currentFilter === 'all') return true;
+                if (currentFilter === '名') return item.pos.includes('名');
+                if (currentFilter === '动') return item.pos.includes('动');
+                if (currentFilter === '形') return item.pos.includes('形');
+                if (currentFilter === '数') return item.pos.includes('数') || item.pos.includes('量');
+                if (currentFilter === '代') return item.pos.includes('代') || item.pos.includes('副') || item.pos.includes('助') || item.pos.includes('连') || item.pos.includes('套') || item.pos.includes('叹');
+                return true;
+            });
+
+            currentIndex = 0;
+            isCardFlipped = false;
+            updateUI();
+        }
+
+        function filterCategory(cat) {
+            currentFilter = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.className = "cat-btn px-3 py-1 rounded-lg font-medium bg-amber-600 text-white shadow-sm";
+                } else {
+                    btn.className = "cat-btn px-3 py-1 rounded-lg font-medium bg-white text-slate-700 hover:bg-amber-200/60 border border-slate-200";
+                }
+            });
+            filterDeck();
+        }
+
+        function shuffleDeck() {
+            for (let i = activeDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [activeDeck[i], activeDeck[j]] = [activeDeck[j], activeDeck[i]];
+            }
+            currentIndex = 0;
+            isCardFlipped = false;
+            updateUI();
+        }
+
+        // UPDATE UI DEPENDING ON DECK & MODE
+        function updateUI() {
+            // Update Mastered Badge Header
+            document.getElementById('header-mastered-count').innerText = masteredSet.size;
+
+            // Progress bar
+            const totalCount = rawHsk1Data.length;
+            const masteredCount = masteredSet.size;
+            const pct = Math.round((masteredCount / totalCount) * 100);
+            document.getElementById('progress-bar').style.width = pct + '%';
+            document.getElementById('progress-percentage-text').innerText = `${pct}% 已掌握`;
+
+            document.getElementById('deck-status-text').innerText = `正在复习: ${activeDeck.length} 词汇`;
+
+            if (viewMode === 'single') {
+                renderSingleCard();
+            } else {
+                renderGridOverview();
+            }
+        }
+
+        function renderSingleCard() {
+            const inner = document.getElementById('active-card-inner');
+            inner.classList.remove('rotate-y-180');
+            isCardFlipped = false;
+
+            if (activeDeck.length === 0) {
+                document.getElementById('card-front-chinese').innerText = "🎉 全景完成";
+                document.getElementById('card-front-pos').innerText = "提示";
+                document.getElementById('card-counter-indicator').innerText = "0 / 0";
+                return;
+            }
+
+            const card = activeDeck[currentIndex];
+            
+            // Front
+            document.getElementById('card-front-chinese').innerText = card.ch;
+            document.getElementById('card-front-pos').innerText = card.pos;
+            document.getElementById('card-counter-indicator').innerText = `${currentIndex + 1} / ${activeDeck.length}`;
+
+            // Back
+            document.getElementById('card-back-chinese').innerText = card.ch;
+            document.getElementById('card-back-pinyin').innerText = card.py;
+            document.getElementById('card-back-pos').innerText = card.pos;
+            document.getElementById('card-back-thai').innerText = card.th;
+            document.getElementById('card-back-english').innerText = card.en;
+        }
+
+        function renderGridOverview() {
+            const wrapper = document.getElementById('grid-cards-wrapper');
+            wrapper.innerHTML = '';
+            document.getElementById('grid-count-indicator').innerText = `显示 ${activeDeck.length} 个未掌握词汇`;
+
+            activeDeck.forEach((card, idx) => {
+                const el = document.createElement('div');
+                el.className = "bg-white p-3 rounded-2xl border border-amber-200/80 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between items-center text-center group";
+                el.onclick = () => {
+                    currentIndex = idx;
+                    setViewMode('single');
+                };
+
+                el.innerHTML = `
+                    <div class="w-full flex justify-between items-center text-[10px] text-slate-400">
+                        <span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-mono font-bold">${card.pos}</span>
+                        <button onclick="event.stopPropagation(); markSpecificMastered('${card.ch}')" class="hover:text-emerald-600 p-1" title="标记已掌握">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </button>
+                    </div>
+                    <div class="my-2">
+                        <ruby class="text-2xl font-bold font-zh text-slate-800">
+                            <rb>${card.ch}</rb>
+                            <rt class="text-xs font-py text-sky-600">${card.py}</rt>
+                        </ruby>
+                    </div>
+                    <p class="text-xs font-th text-amber-900 font-medium truncate w-full">${card.th}</p>
+                `;
+                wrapper.appendChild(el);
+            });
+        }
+
+        // CARD CONTROLS
+        function flipCurrentCard() {
+            if (activeDeck.length === 0) return;
+            const inner = document.getElementById('active-card-inner');
+            isCardFlipped = !isCardFlipped;
+            if (isCardFlipped) {
+                inner.classList.add('rotate-y-180');
+            } else {
+                inner.classList.remove('rotate-y-180');
+            }
+        }
+
+        function nextCard() {
+            if (activeDeck.length === 0) return;
+            currentIndex = (currentIndex + 1) % activeDeck.length;
+            renderSingleCard();
+        }
+
+        function prevCard() {
+            if (activeDeck.length === 0) return;
+            currentIndex = (currentIndex - 1 + activeDeck.length) % activeDeck.length;
+            renderSingleCard();
+        }
+
+        function markCurrentMastered() {
+            if (activeDeck.length === 0) return;
+            const currentWord = activeDeck[currentIndex].ch;
+            markSpecificMastered(currentWord);
+        }
+
+        function markSpecificMastered(word) {
+            masteredSet.add(word);
+            localStorage.setItem('hsk1_mastered_words', JSON.stringify([...masteredSet]));
+
+            // Filter out from deck dynamically
+            activeDeck = activeDeck.filter(item => item.ch !== word);
+            if (currentIndex >= activeDeck.length) {
+                currentIndex = Math.max(0, activeDeck.length - 1);
+            }
+            updateUI();
+        }
+
+        function resetAllMastered() {
+            if (confirm("确定要重置所有已掌握的词汇记录吗？")) {
+                masteredSet.clear();
+                localStorage.removeItem('hsk1_mastered_words');
+                filterDeck();
+            }
+        }
+
+        // VIEW MODE TOGGLE
+        function setViewMode(mode) {
+            viewMode = mode;
+            const btnSingle = document.getElementById('btn-view-single');
+            const btnGrid = document.getElementById('btn-view-grid');
+            const containerSingle = document.getElementById('view-single-container');
+            const containerGrid = document.getElementById('view-grid-container');
+
+            if (mode === 'single') {
+                btnSingle.className = "px-2.5 py-1 rounded-lg bg-white text-amber-900 font-semibold shadow-sm transition flex items-center gap-1";
+                btnGrid.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1";
+                containerSingle.classList.remove('hidden');
+                containerGrid.classList.add('hidden');
+                renderSingleCard();
+            } else {
+                btnGrid.className = "px-2.5 py-1 rounded-lg bg-white text-amber-900 font-semibold shadow-sm transition flex items-center gap-1";
+                btnSingle.className = "px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1";
+                containerGrid.classList.remove('hidden');
+                containerSingle.classList.add('hidden');
+                renderGridOverview();
+            }
+        }
+
+        // TTS AUDIO VOICE
+        function speakActiveWord() {
+            if (activeDeck.length === 0) return;
+            const text = activeDeck[currentIndex].ch;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'zh-CN';
+                msg.rate = 0.85;
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        // KEYBOARD SHORTCUTS
+        function setupKeyboardListeners() {
+            document.addEventListener('keydown', (e) => {
+                if (viewMode !== 'single') return;
+
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    flipCurrentCard();
+                } else if (e.code === 'ArrowRight') {
+                    e.preventDefault();
+                    nextCard();
+                } else if (e.code === 'ArrowLeft') {
+                    e.preventDefault();
+                    prevCard();
+                } else if (e.code === 'KeyM') {
+                    e.preventDefault();
+                    markCurrentMastered();
+                }
+            });
+        }
+
+        // MASTERED LIST MODAL LOGIC
+        function toggleMasteredListModal() {
+            const modal = document.getElementById('mastered-modal');
+            modal.classList.toggle('hidden');
+
+            if (!modal.classList.contains('hidden')) {
+                renderMasteredModalItems();
+            }
+        }
+
+        function renderMasteredModalItems() {
+            const list = document.getElementById('mastered-items-list');
+            list.innerHTML = '';
+
+            if (masteredSet.size === 0) {
+                list.innerHTML = `<p class="text-center text-slate-400 py-8">暂无已掌握的词汇 (ยังไม่มีรายการที่จำได้แล้ว)</p>`;
+                return;
+            }
+
+            const masteredData = rawHsk1Data.filter(v => masteredSet.has(v.ch));
+            masteredData.forEach(item => {
+                const row = document.createElement('div');
+                row.className = "p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between";
+                row.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="font-zh font-bold text-lg text-slate-800">${item.ch}</span>
+                        <span class="font-py text-sky-600 text-sm font-semibold">${item.py}</span>
+                        <span class="text-slate-500 font-th">${item.th}</span>
+                    </div>
+                    <button onclick="unmarkMastered('${item.ch}')" class="text-xs text-rose-500 hover:text-rose-700 font-semibold px-2 py-1 rounded bg-rose-50">
+                        恢复复习
+                    </button>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        function unmarkMastered(word) {
+            masteredSet.delete(word);
+            localStorage.setItem('hsk1_mastered_words', JSON.stringify([...masteredSet]));
+            renderMasteredModalItems();
+            filterDeck();
+        }
+    </script>
+</body>
+</html>
